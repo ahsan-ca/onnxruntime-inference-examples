@@ -553,8 +553,18 @@ if __name__ == '__main__':
         for k, v in compute_range.data.items():
             json_compute_range[k] = (float(v.range_value[0]), float(v.range_value[1]))
 
+        print("Writing calibration table")
+        try:
+            write_calibration_table(json_compute_range)
+        except AttributeError as e:
+            calibration_table = {}
+            for k, v in compute_range.data.items():
+                min_val = float(v.range_value[0]) if hasattr(v.range_value[0], 'item') else float(v.range_value[0])
+                max_val = float(v.range_value[1]) if hasattr(v.range_value[1], 'item') else float(v.range_value[1])
+                calibration_table[k] = [min_val, max_val]
 
-        write_calibration_table(json_compute_range)
+            with open("calibration.flatbuffers", "w") as f:
+                json.dump(calibration_table, f)
         print("Calibration is done. Calibration cache is saved to calibration.json")
 
         model_quants = model_quants + "_int8"
