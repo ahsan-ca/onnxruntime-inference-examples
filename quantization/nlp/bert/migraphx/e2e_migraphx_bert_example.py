@@ -550,21 +550,17 @@ if __name__ == '__main__':
         #  Need to fix this for serialization but also convert values to float from float32 in order for JSON to correctly
         #  write out calibration table
         json_compute_range = {}
+        json_compute_range_new = {}
         for k, v in compute_range.data.items():
             json_compute_range[k] = (float(v.range_value[0]), float(v.range_value[1]))
+            json_compute_range_new[k] = [float(v.range_value[0]), float(v.range_value[1])]
 
         print("Writing calibration table")
         try:
             write_calibration_table(json_compute_range)
         except AttributeError as e:
-            calibration_table = {}
-            for k, v in compute_range.data.items():
-                min_val = float(v.range_value[0]) if hasattr(v.range_value[0], 'item') else float(v.range_value[0])
-                max_val = float(v.range_value[1]) if hasattr(v.range_value[1], 'item') else float(v.range_value[1])
-                calibration_table[k] = [min_val, max_val]
+            write_calibration_table(json_compute_range_new)
 
-            with open("calibration.flatbuffers", "w") as f:
-                json.dump(calibration_table, f)
         print("Calibration is done. Calibration cache is saved to calibration.json")
 
         model_quants = model_quants + "_int8"
